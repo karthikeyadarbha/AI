@@ -1,0 +1,23 @@
+# Use an official Python base. If you need CUDA, replace with nvidia/cuda images and adjust.
+FROM python:3.10-slim
+
+# Basic apt packages
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git build-essential wget curl ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
+
+# Create user to match Codespaces default
+ARG USER=vscode
+RUN useradd -m ${USER} || true
+USER ${USER}
+WORKDIR /workspace
+
+# Copy requirements separately for caching
+COPY --chown=vscode:vscode requirements.txt /workspace/requirements.txt
+
+# Install Python deps
+RUN python -m pip install --upgrade pip setuptools wheel
+RUN pip install --no-cache-dir -r /workspace/requirements.txt
+
+# Default command
+CMD [ "bash" ]
